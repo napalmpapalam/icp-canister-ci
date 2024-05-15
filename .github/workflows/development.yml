@@ -33,9 +33,7 @@ jobs:
         run: cargo build --release -p icp-canister-ci-backend
 
       - name: Deploy to Development | Install dfx
-        run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://sdk.dfinity.org/install.sh | sh
-          export PATH="$HOME/.cache/dfinity/versions/0.7.0:$PATH"
+        run: sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
 
       - name: Deploy to Development | Authenticate
         run: dfx identity use default
