@@ -1,5 +1,5 @@
 [workspace]
 members = [
-    "src/icp-canister-ci-backend"
+    "src/canister"
 ]
 resolver = "2"

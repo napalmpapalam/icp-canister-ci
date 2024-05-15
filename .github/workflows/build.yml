@@ -32,4 +32,15 @@ jobs:
         run: cargo clippy --all-features
 
       - name: Build
-        run: cargo build -p icp-canister-ci-backend
+        run: cargo build -p canister --release
+
+      - name: Gzip Wasm
+        if: github.ref == 'refs/heads/master'
+        run: gzip -c target/wasm32-unknown-unknown/release/canister.wasm > wasm/canister_${{ github.sha }}.wasm.gz
+
+      - name: Upload Artifacts
+        if: github.ref == 'refs/heads/master'
+        uses: actions/upload-artifact@v4
+        with:
+          name: canister-${{ github.sha }}
+          path: wasm/canister_${{ github.sha }}.wasm.gz

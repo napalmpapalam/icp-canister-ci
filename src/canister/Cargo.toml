@@ -1,5 +1,5 @@
 [package]
-name = "icp-canister-ci-backend"
+name = "canister"
 version = "0.1.0"
 edition = "2021"
 

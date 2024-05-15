@@ -1,17 +1,41 @@
 {
   "canisters": {
-    "icp-canister-ci-backend": {
-      "candid": "src/icp-canister-ci-backend/icp-canister-ci-backend.did",
-      "package": "icp-canister-ci-backend",
-      "type": "rust"
+    "canister": {
+      "type": "custom",
+      "package": "canister",
+      "candid": "src/canister/canister.did",
+      "wasm": "wasm/canister.wasm.gz",
+      "optimize": "O3",
+      "build": [
+        "bash scripts/build.sh"
+      ]
     }
   },
-  "defaults": {
-    "build": {
-      "args": "",
-      "packtool": ""
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8080",
+      "type": "ephemeral",
+      "replica": {
+        "subnet_type": "system"
+      }
+    },
+    "ic": {
+      "providers": [
+        "https://icp0.io"
+      ],
+      "type": "persistent"
+    },
+    "staging": {
+      "providers": [
+        "https://icp0.io"
+      ],
+      "type": "persistent"
+    },
+    "development": {
+      "providers": [
+        "https://icp0.io"
+      ],
+      "type": "persistent"
     }
-  },
-  "output_env_file": ".env",
-  "version": 1
+  }
 }

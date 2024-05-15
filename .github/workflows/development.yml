@@ -5,13 +5,6 @@ on:
     workflows: [Build]
     types: [completed]
     branches: [master]
-
-env:
-  # Pretty cargo output!
-  CARGO_TERM_COLOR: always
-  # Make sure CI fails on all warnings, including Clippy lints
-  RUSTFLAGS: "-D warnings"
-  CARGO_BUILD_TARGET: wasm32-unknown-unknown
     
 jobs:
   deploy:
@@ -20,35 +13,20 @@ jobs:
       - name: Deploy to Development | Checkout
         uses: actions/checkout@v4
 
-      - name: Deploy to Development | Install toolchain
-        uses: dtolnay/rust-toolchain@stable
+      - name: Deploy to Development | Download Artifacts
+        uses: actions/download-artifact@v4
         with:
-          toolchain: stable
-          targets: wasm32-unknown-unknown
-
-      - name: Deploy to Development | Cache
-        uses: Swatinem/rust-cache@v2
-
-      - name: Deploy to Development | Build
-        run: cargo build --release -p icp-canister-ci-backend
+          name: canister_${{ github.sha }}
+          path: wasm
 
       - name: Deploy to Development | Install dfx
         uses: dfinity/setup-dfx@main
 
       - name: Deploy to Development | Authenticate
-        run: dfx identity use default
+        run: |
+          echo ${{ secrets.CATALYZE_DEVELOPMENT }} | base64 --decode > catalyze_development.pem
+          dfx identity import --storage-mode=plaintext catalyze_development catalyze_development.pem
+          dfx identity use catalyze_development
 
       - name: Deploy to Development | Deploy
-        run: dfx deploy --network ic
-
-      - name: Deploy to Development | Install canister
-        run: dfx canister install icp_canister_ci_backend
-
-      - name: Deploy to Development | Start canister
-        run: dfx canister start icp_canister_ci_backend
-
-      - name: Deploy to Development | Canister status
-        run: dfx canister status icp_canister_ci_backend
-
-      - name: Deploy to Development | Canister call
-        run: dfx canister call icp_canister_ci_backend greet "Hello, World!"
+        run: dfx canister install canister --network development --wasm wasm/canister_${{ github.sha }}.wasm.gz --mode upgrade
