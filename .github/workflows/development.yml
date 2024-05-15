@@ -16,6 +16,7 @@ jobs:
       - name: Deploy to Development | Download Artifacts
         uses: dawidd6/action-download-artifact@v3
         with:
+          workflow: build.yml
           name: canister_${{ github.sha }}
           path: wasm
 
