@@ -1,0 +1,44 @@
+name: Deploy to Development
+
+on:
+  workflow_run:
+    workflows: [Build]
+    types: [completed]
+    branches: [master]
+    
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [Build]
+    steps:
+      - name: Deploy | Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy | Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: icp-canister-ci-backend
+          path: target/wasm32-unknown-unknown/release
+
+      - name: Deploy | Install dfx
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sdk.dfinity.org/install.sh | sh
+          export PATH="$HOME/.cache/dfinity/versions/0.7.0:$PATH"
+
+      - name: Deploy | Authenticate
+        run: dfx identity use default
+
+      - name: Deploy | Deploy
+        run: dfx deploy --network ic
+
+      - name: Deploy | Install canister
+        run: dfx canister install icp_canister_ci_backend
+
+      - name: Deploy | Start canister
+        run: dfx canister start icp_canister_ci_backend
+
+      - name: Deploy | Canister status
+        run: dfx canister status icp_canister_ci_backend
+
+      - name: Deploy | Canister call
+        run: dfx canister call icp_canister_ci_backend greet "Hello, World!"
