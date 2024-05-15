@@ -1,17 +1,36 @@
 name: Build and Lint
 on: [push]
 
-# TODO: Uncomment the following lines to enable Clippy
-# # Make sure CI fails on all warnings, including Clippy lints
-# env:
-#   RUSTFLAGS: "-D warnings"
+env:
+  # Pretty cargo output!
+  CARGO_TERM_COLOR: always
+  # Make sure CI fails on all warnings, including Clippy lints
+  RUSTFLAGS: "-D warnings"
+  CARGO_BUILD_TARGET: wasm32-unknown-unknown
 
 jobs:
-  clippy_check:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      #- name: Clippy
-      #  run: cargo clippy --all-targets --all-features
+      - name: Build | Checkout
+        uses: actions/checkout@v4
+
+      - name: Build | Install toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          targets: wasm32-unknown-unknown
+          components: rustfmt, clippy
+
+      - name: Build | Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build | rustfmt
+        run: cargo fmt -- --check
+
+      - name: Build | clippy
+        run: cargo clippy --all-features
+
       - name: Build
-        run: cargo build --target wasm32-unknown-unknown
+        run: cargo build
+
