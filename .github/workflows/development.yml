@@ -10,24 +10,24 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to Development | Checkout
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Deploy to Development | Download Artifacts
+      - name: Download Artifacts
         uses: dawidd6/action-download-artifact@v3
         with:
           workflow: build.yml
           name: canister_${{ github.sha }}
           path: wasm
 
-      - name: Deploy to Development | Install dfx
+      - name: Install dfx
         uses: dfinity/setup-dfx@main
 
-      - name: Deploy to Development | Authenticate
+      - name: Authenticate dfx
         run: |
           echo ${{ secrets.CATALYZE_DEVELOPMENT }} | base64 --decode > catalyze_development.pem
           dfx identity import --storage-mode=plaintext catalyze_development catalyze_development.pem
           dfx identity use catalyze_development
 
-      - name: Deploy to Development | Deploy
+      - name: Deploy
         run: dfx canister install canister --network development --wasm wasm/canister_${{ github.sha }}.wasm.gz --mode upgrade

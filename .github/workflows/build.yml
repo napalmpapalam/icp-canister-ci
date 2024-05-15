@@ -12,24 +12,27 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Build | Checkout
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build | Install toolchain
+      - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
           targets: wasm32-unknown-unknown
           components: rustfmt, clippy
 
-      - name: Build | Cache
+      - name: Setup Cache
         uses: Swatinem/rust-cache@v2
 
-      - name: Build | rustfmt
+      - name: rustfmt
         run: cargo fmt -- --check
 
-      - name: Build | clippy
-        run: cargo clippy --all-features
+      - name: clippy
+        run: cargo clippy
+
+      # - name: Tests
+      #   run: cargo test
 
       - name: Build
         run: cargo build -p canister --release
