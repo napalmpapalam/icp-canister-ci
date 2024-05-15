@@ -1,0 +1,17 @@
+{
+  "canisters": {
+    "icp-canister-ci-backend": {
+      "candid": "src/icp-canister-ci-backend/icp-canister-ci-backend.did",
+      "package": "icp-canister-ci-backend",
+      "type": "rust"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
