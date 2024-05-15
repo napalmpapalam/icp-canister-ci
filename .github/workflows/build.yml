@@ -1,0 +1,17 @@
+name: Build and Lint
+on: [push]
+
+# TODO: Uncomment the following lines to enable Clippy
+# # Make sure CI fails on all warnings, including Clippy lints
+# env:
+#   RUSTFLAGS: "-D warnings"
+
+jobs:
+  clippy_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      #- name: Clippy
+      #  run: cargo clippy --all-targets --all-features
+      - name: Build
+        run: cargo build --target wasm32-unknown-unknown
