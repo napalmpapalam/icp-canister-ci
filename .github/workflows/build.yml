@@ -44,5 +44,5 @@ jobs:
         if: github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v4
         with:
-          name: canister-${{ github.sha }}
+          name: canister_${{ github.sha }}
           path: wasm/canister_${{ github.sha }}.wasm.gz
