@@ -5,40 +5,53 @@ on:
     workflows: [Build]
     types: [completed]
     branches: [master]
+
+env:
+  # Pretty cargo output!
+  CARGO_TERM_COLOR: always
+  # Make sure CI fails on all warnings, including Clippy lints
+  RUSTFLAGS: "-D warnings"
+  CARGO_BUILD_TARGET: wasm32-unknown-unknown
     
 jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: [Build]
     steps:
-      - name: Deploy | Checkout
+      - name: Deploy to Development | Checkout
         uses: actions/checkout@v4
 
-      - name: Deploy | Download Artifact
-        uses: actions/download-artifact@v4
+      - name: Deploy to Development | Install toolchain
+        uses: dtolnay/rust-toolchain@stable
         with:
-          name: icp-canister-ci-backend
-          path: target/wasm32-unknown-unknown/release
+          toolchain: stable
+          targets: wasm32-unknown-unknown
 
-      - name: Deploy | Install dfx
+      - name: Deploy to Development | Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Deploy to Development | Build
+        run: cargo build --release -p icp-canister-ci-backend
+
+      - name: Deploy to Development | Install dfx
         run: |
           curl --proto '=https' --tlsv1.2 -sSf https://sdk.dfinity.org/install.sh | sh
           export PATH="$HOME/.cache/dfinity/versions/0.7.0:$PATH"
 
-      - name: Deploy | Authenticate
+      - name: Deploy to Development | Authenticate
         run: dfx identity use default
 
-      - name: Deploy | Deploy
+      - name: Deploy to Development | Deploy
         run: dfx deploy --network ic
 
-      - name: Deploy | Install canister
+      - name: Deploy to Development | Install canister
         run: dfx canister install icp_canister_ci_backend
 
-      - name: Deploy | Start canister
+      - name: Deploy to Development | Start canister
         run: dfx canister start icp_canister_ci_backend
 
-      - name: Deploy | Canister status
+      - name: Deploy to Development | Canister status
         run: dfx canister status icp_canister_ci_backend
 
-      - name: Deploy | Canister call
+      - name: Deploy to Development | Canister call
         run: dfx canister call icp_canister_ci_backend greet "Hello, World!"
