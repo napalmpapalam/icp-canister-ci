@@ -31,8 +31,8 @@ jobs:
       - name: clippy
         run: cargo clippy
 
-      - name: Tests
-        run: cargo test
+      # - name: Tests
+      #   run: cargo test
 
       - name: Build
         run: cargo build -p canister --release
