@@ -37,9 +37,7 @@ jobs:
       - name: Gzip Wasm
         if: github.ref == 'refs/heads/master'
         run: |
-          ls
-          ls target
-          ls target/wasm32-unknown-unknown/release
+          mkdir wasm
           gzip -c target/wasm32-unknown-unknown/release/canister.wasm > wasm/canister_${{ github.sha }}.wasm.gz
 
       - name: Upload Artifacts
