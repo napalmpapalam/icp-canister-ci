@@ -1,20 +1,13 @@
-name: Build and deploy to development
+name: Deploy to Development
 
 on:
   workflow_run:
     workflows: [Build]
     types: [completed]
     branches: [master]
-
-env:
-  # Pretty cargo output!
-  CARGO_TERM_COLOR: always
-  # Make sure CI fails on all warnings, including Clippy lints
-  RUSTFLAGS: "-D warnings"
-  CARGO_BUILD_TARGET: wasm32-unknown-unknown
     
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -26,15 +19,29 @@ jobs:
           lint: 'false'
           gzip: 'true'
           build_args: '--release'
+      
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: canister_${{ github.sha }}
+          path: wasm/canister_${{ github.sha }}.wasm.gz
 
-      - name: Install dfx
-        uses: dfinity/setup-dfx@main
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Authenticate dfx
-        run: |
-          echo ${{ secrets.CATALYZE_DEVELOPMENT }} | base64 --decode > catalyze_development.pem
-          dfx identity import --storage-mode=plaintext catalyze_development catalyze_development.pem
-          dfx identity use catalyze_development
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: canister_${{ github.sha }}
+          path: wasm
 
       - name: Deploy
-        run: dfx canister install canister --network development --wasm wasm/canister_${{ github.sha }}.wasm.gz --mode upgrade
+        uses: ./.github/actions/deploy
+        with:
+          identity: ${{ secrets.CATALYZE_DEVELOPMENT }}
+          canister_name: canister
+          network: development
+          wasm_file: wasm/canister_${{ github.sha }}.wasm.gz
