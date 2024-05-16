@@ -15,37 +15,5 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: stable
-          targets: wasm32-unknown-unknown
-          components: rustfmt, clippy
-
-      - name: Setup Cache
-        uses: Swatinem/rust-cache@v2
-
-      - name: rustfmt
-        run: cargo fmt -- --check
-
-      - name: clippy
-        run: cargo clippy
-
-      # - name: Tests
-      #   run: cargo test
-
       - name: Build
-        run: cargo build -p canister --release
-
-      - name: Gzip Wasm
-        if: github.ref == 'refs/heads/master'
-        run: |
-          mkdir wasm
-          gzip -c target/wasm32-unknown-unknown/release/canister.wasm > wasm/canister_${{ github.sha }}.wasm.gz
-
-      - name: Upload Artifacts
-        if: github.ref == 'refs/heads/master'
-        uses: actions/upload-artifact@v4
-        with:
-          name: canister_${{ github.sha }}
-          path: wasm/canister_${{ github.sha }}.wasm.gz
+        uses: ./.github/actions/build

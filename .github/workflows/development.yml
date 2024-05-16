@@ -1,10 +1,17 @@
-name: Deploy to Development
+name: Build and deploy to development
 
 on:
   workflow_run:
     workflows: [Build]
     types: [completed]
     branches: [master]
+
+env:
+  # Pretty cargo output!
+  CARGO_TERM_COLOR: always
+  # Make sure CI fails on all warnings, including Clippy lints
+  RUSTFLAGS: "-D warnings"
+  CARGO_BUILD_TARGET: wasm32-unknown-unknown
     
 jobs:
   deploy:
@@ -12,13 +19,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Download Artifacts
-        uses: dawidd6/action-download-artifact@v3
+      
+      - name: Build
+        uses: ./.github/actions/build
         with:
-          workflow: build.yml
-          name: canister_${{ github.sha }}
-          path: wasm
+          lint: 'false'
+          gzip: 'true'
+          build_args: '--release'
 
       - name: Install dfx
         uses: dfinity/setup-dfx@main
