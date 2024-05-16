@@ -11,6 +11,7 @@ concurrency:
 
 env:
   VERSION: ${{ github.sha }}
+  PACKAGE: 'canister'
     
 jobs:
   build:
@@ -26,13 +27,14 @@ jobs:
           test: 'true'
           gzip: 'true'
           version: ${{ env.VERSION }}
+          package: ${{ env.PACKAGE }}
           build_args: '--release'
       
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: canister_${{ env.VERSION }}
-          path: wasm/canister_${{ env.VERSION }}.wasm.gz
+          name: ${{ env.PACKAGE }}_${{ env.VERSION }}
+          path: wasm/${{ env.PACKAGE }}_${{ env.VERSION }}.wasm.gz
           if-no-files-found: error
 
   deploy:
@@ -45,7 +47,7 @@ jobs:
       - name: Download Artifact
         uses: actions/download-artifact@v4
         with:
-          name: canister_${{ env.VERSION }}
+          name: ${{ env.PACKAGE }}_${{ env.VERSION }}
           path: wasm
 
       - name: Deploy
@@ -54,4 +56,4 @@ jobs:
           identity: ${{ secrets.CATALYZE_DEVELOPMENT }}
           canister_name: canister
           network: development
-          wasm_file: wasm/canister_${{ env.VERSION }}.wasm.gz
+          wasm_file: wasm/${{ env.PACKAGE }}_${{ env.VERSION }}.wasm.gz
