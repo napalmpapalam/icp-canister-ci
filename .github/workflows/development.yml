@@ -30,8 +30,8 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: canister_$VERSION
-          path: wasm/canister_$VERSION.wasm.gz
+          name: canister_${{ VERSION }}
+          path: wasm/canister_${{ VERSION }}.wasm.gz
 
   deploy:
     runs-on: ubuntu-latest
@@ -43,7 +43,7 @@ jobs:
       - name: Download Artifact
         uses: actions/download-artifact@v4
         with:
-          name: canister_$VERSION
+          name: canister_${{ VERSION }}
           path: wasm
 
       - name: Deploy
@@ -52,4 +52,4 @@ jobs:
           identity: ${{ secrets.CATALYZE_DEVELOPMENT }}
           canister_name: canister
           network: development
-          wasm_file: wasm/canister_$VERSION.wasm.gz
+          wasm_file: wasm/canister_${{ VERSION }}.wasm.gz
