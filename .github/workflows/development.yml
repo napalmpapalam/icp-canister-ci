@@ -1,10 +1,9 @@
 name: Deploy to Development
 
 on:
-  workflow_run:
-    workflows: [Build]
-    types: [completed]
-    branches: [master]
+  push:
+    branches: 
+      - master
 
 concurrency: 
   group: ${{ github.ref }}
@@ -23,8 +22,10 @@ jobs:
       - name: Build
         uses: ./.github/actions/build
         with:
-          lint: 'false'
+          lint: 'true'
+          test: 'true'
           gzip: 'true'
+          version: ${{ env.VERSION }}
           build_args: '--release'
       
       - name: Upload Artifact

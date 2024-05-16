@@ -4,16 +4,13 @@ description: Build the Rust canister
 inputs:
   lint:
     description: Run lint with clippy and rustfmt
-    required: false
-    default: 'true'
+    required: true
   test:
     description: Run tests with cargo test
-    required: false
-    default: 'false'
+    required: true
   gzip:
     description: Gzip the wasm file
-    required: false
-    default: 'false'
+    required: true
   version:
     description: Version of the output gzip wasm file
     required: false
