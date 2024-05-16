@@ -5,6 +5,14 @@ on:
     workflows: [Build]
     types: [completed]
     branches: [master]
+
+# Concurrency ensures that only a single job or workflow using the same concurrency group will run at a time.
+concurrency: 
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  VERSION: ${{ github.sha }}
     
 jobs:
   build:
@@ -23,8 +31,8 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: canister_${{ github.sha }}
-          path: wasm/canister_${{ github.sha }}.wasm.gz
+          name: canister_$VERSION
+          path: wasm/canister_$VERSION.wasm.gz
 
   deploy:
     runs-on: ubuntu-latest
@@ -36,7 +44,7 @@ jobs:
       - name: Download Artifact
         uses: actions/download-artifact@v4
         with:
-          name: canister_${{ github.sha }}
+          name: canister_$VERSION
           path: wasm
 
       - name: Deploy
@@ -45,4 +53,4 @@ jobs:
           identity: ${{ secrets.CATALYZE_DEVELOPMENT }}
           canister_name: canister
           network: development
-          wasm_file: wasm/canister_${{ github.sha }}.wasm.gz
+          wasm_file: wasm/canister_$VERSION.wasm.gz
