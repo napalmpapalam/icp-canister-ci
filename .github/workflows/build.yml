@@ -1,5 +1,10 @@
 name: Build
-on: [push]
+
+on:
+  push:
+    branches:
+      - '**'
+      - '!master'
 
 concurrency: 
   group: ${{ github.ref }}
@@ -14,3 +19,7 @@ jobs:
 
       - name: Build
         uses: ./.github/actions/build
+        with:
+          lint: 'true'
+          test: 'true'
+          gzip: 'false'
