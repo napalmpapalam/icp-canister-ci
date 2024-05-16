@@ -64,7 +64,7 @@ jobs:
           echo "EOF" >> $GITHUB_ENV
 
       - name: Echo changes
-        run: echo ${{ env.CHANGES }}
+        run: echo "${{ env.CHANGES }}"
 
       - name: Release
         uses: softprops/action-gh-release@v2
