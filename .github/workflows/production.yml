@@ -72,7 +72,7 @@ jobs:
           body: ${{ env.CHANGES }}
           make_latest: 'true'
           files: |
-            $$ {{ env.WASM_PATH }}
+            wasm/${{ env.PACKAGE }}_${{ env.VERSION }}.wasm.gz
             wasm/${{ env.PACKAGE }}_${{ env.VERSION }}.wasm
 
       - name: Install quill
@@ -94,13 +94,14 @@ jobs:
             --url "https://github.com/${{ github.repository }}/releases/tag/${{ env.VERSION }}" \
             --title "Upgrade ${{ env.CANISTER_NAME }} canister to version ${{ env.VERSION }}" \
             "${{ env.DEVELOPER_NEURON_ID }}" > msg.json
-          MSG=$(cat ./msg.json)
-          echo "MSG<<EOF" >> $GITHUB_ENV
-          echo "$MSG" >> $GITHUB_ENV
+
+      - name: Set Proposal variable
+        run: |
+          PROPOSAL_MSG=$(cat ./msg.json)
+          echo "PROPOSAL_MSG<<EOF" >> $GITHUB_ENV
+          echo "$PROPOSAL_MSG" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
       - name: Send Proposal
         run: |
-          echo "Created proposal: ${{ env.MSG }}"
-
-
+          echo "The string is: ${{ env.PROPOSAL_MSG }}"
