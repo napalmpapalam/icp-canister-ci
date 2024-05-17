@@ -17,8 +17,8 @@ env:
   VERSION: ${{ github.ref_name }}
   PACKAGE: 'canister'
   CANISTER_NAME: 'canister'
-  UPGRADE_CANISTER_ID: ''
-  DEVELOPER_NEURON_ID: ''
+  UPGRADE_CANISTER_ID: '2jvhk-5aaaa-aaaap-ahewa-cai'
+  DEVELOPER_NEURON_ID: '37173462e82235788f2592e076b31cf0e8601eff16b2a8687b564589d867de36'
 
 jobs:
   build:
@@ -84,7 +84,7 @@ jobs:
 
       - name: Create Proposal
         run: |
-          echo ${{ secrets.CATALYZE_PROPOSAL }} | base64 --decode > catalyze.pem
+          echo ${{ secrets.DEFAULT_IDENTITY }} | base64 --decode > catalyze.pem
           quill sns make-upgrade-canister-proposal \
             --canister-ids-file scripts/sns_canister_ids.json  \
             --target-canister-id "${{ env.UPGRADE_CANISTER_ID }}" \
@@ -94,7 +94,7 @@ jobs:
             --url "https://github.com/${{ github.repository }}/releases/tag/${{ env.VERSION }}" \
             --title "Upgrade ${{ env.CANISTER_NAME }} canister to version ${{ env.VERSION }}" \
             "${{ env.DEVELOPER_NEURON_ID }}" > msg.json
-          quill send --yes msg.json
-          
+          cat msg.json
+
 
 
