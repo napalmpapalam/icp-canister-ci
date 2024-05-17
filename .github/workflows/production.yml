@@ -1,9 +1,11 @@
 name: Build, Create Release and SNS Proposal for Production
 
-on:
-  push:
-    tags: 
-      - "[0-9]+.[0-9]+.[0-9]+"
+on: [push]
+
+# on:
+#   push:
+#     tags: 
+#       - "[0-9]+.[0-9]+.[0-9]+"
 
 concurrency: 
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -14,7 +16,8 @@ permissions:
   contents: write
 
 env:
-  VERSION: ${{ github.ref_name }}
+  # VERSION: ${{ github.ref_name }}
+  VERSION: "0.1.9"
   PACKAGE: 'canister'
   CANISTER_NAME: 'canister'
   UPGRADE_CANISTER_ID: '2jvhk-5aaaa-aaaap-ahewa-cai'
@@ -94,7 +97,9 @@ jobs:
             --url "https://github.com/${{ github.repository }}/releases/tag/${{ env.VERSION }}" \
             --title "Upgrade ${{ env.CANISTER_NAME }} canister to version ${{ env.VERSION }}" \
             "${{ env.DEVELOPER_NEURON_ID }}" > msg.json
-          cat msg.json
+          echo 'MSG<<EOF' >> $GITHUB_ENV
+          cat ./msg.json >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
 
 
 
