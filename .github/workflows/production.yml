@@ -80,7 +80,7 @@ jobs:
       - name: Install quill
         run: |
           curl -LJO https://github.com/dfinity/quill/releases/download/v0.4.4/quill-linux-x86_64
-          sudo mv quill-macos-x86_64 /usr/local/bin/quill
+          sudo mv quill-linux-x86_64 /usr/local/bin/quill
           chmod +x /usr/local/bin/quill
           quill -h
 
