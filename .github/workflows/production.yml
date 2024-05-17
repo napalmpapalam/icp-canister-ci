@@ -18,9 +18,9 @@ env:
   VERSION: ${{ github.ref_name }}
   PACKAGE: 'canister'
   CANISTER_NAME: 'canister'
-  WASM_PATH: wasm/${{ env.PACKAGE }}_${{ env.VERSION }}.wasm.gz
-  UPGRADE_CANISTER_ID: ''
-  DEVELOPER_NEURON_ID: ''
+  # WASM_PATH: wasm/${{ env.PACKAGE }}_${{ env.VERSION }}.wasm.gz
+  # UPGRADE_CANISTER_ID: ''
+  # DEVELOPER_NEURON_ID: ''
 
 jobs:
   # build:
