@@ -1,9 +1,10 @@
 name: Build, Create Release and SNS Proposal for Production
 
-on:
-  push:
-    tags: 
-      - "[0-9]+.[0-9]+.[0-9]+"
+on: [push]
+# on:
+  # push:
+  #   tags: 
+  #     - "[0-9]+.[0-9]+.[0-9]+"
 
 concurrency: 
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -16,63 +17,86 @@ permissions:
 env:
   VERSION: ${{ github.ref_name }}
   PACKAGE: 'canister'
+  CANISTER_NAME: 'canister'
+  WASM_PATH: wasm/${{ env.PACKAGE }}_${{ env.VERSION }}.wasm.gz
+  UPGRADE_CANISTER_ID: ''
+  DEVELOPER_NEURON_ID: ''
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+  # build:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
       
-      - name: Build
-        uses: ./.github/actions/build
-        with:
-          lint: 'true'
-          test: 'true'
-          gzip: 'true'
-          version: ${{ env.VERSION }}
-          package: ${{ env.PACKAGE }}
-          build_args: '--release'
+  #     - name: Build
+  #       uses: ./.github/actions/build
+  #       with:
+  #         lint: 'true'
+  #         test: 'true'
+  #         gzip: 'true'
+  #         version: ${{ env.VERSION }}
+  #         package: ${{ env.PACKAGE }}
+  #         build_args: '--release'
       
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.PACKAGE }}_${{ env.VERSION }}
-          path: |
-            wasm/${{ env.PACKAGE }}_${{ env.VERSION }}.wasm.gz
-            wasm/${{ env.PACKAGE }}_${{ env.VERSION }}.wasm
-          if-no-files-found: error
+  #     - name: Upload Artifact
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: ${{ env.PACKAGE }}_${{ env.VERSION }}
+  #         path: |
+  #           wasm/${{ env.PACKAGE }}_${{ env.VERSION }}.wasm.gz
+  #           wasm/${{ env.PACKAGE }}_${{ env.VERSION }}.wasm
+  #         if-no-files-found: error
 
   release:
     runs-on: ubuntu-latest
-    needs: [build]
+  #   needs: [build]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
 
-      - name: Download Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ env.PACKAGE }}_${{ env.VERSION }}
-          path: wasm
+  #     - name: Download Artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: ${{ env.PACKAGE }}_${{ env.VERSION }}
+  #         path: wasm
 
-      - name: Set Changes Variable
+  #     - name: Set Changes Variable
+  #       run: |
+  #         CHANGES=$(sed -n '/## \[${{ env.VERSION }}\]/,/^## \[/p' CHANGELOG.md | sed '$d')
+  #         echo "CHANGES<<EOF" >> $GITHUB_ENV
+  #         echo "$CHANGES" >> $GITHUB_ENV
+  #         echo "EOF" >> $GITHUB_ENV
+
+  #     - name: Make GitHub Release
+  #       uses: softprops/action-gh-release@v2
+  #       with:
+  #         body: ${{ env.CHANGES }}
+  #         make_latest: 'true'
+  #         files: |
+  #           $$ {{ env.WASM_PATH }}
+  #           wasm/${{ env.PACKAGE }}_${{ env.VERSION }}.wasm
+
+      - name: Install quill
         run: |
-          CHANGES=$(sed -n '/## \[${{ env.VERSION }}\]/,/^## \[/p' CHANGELOG.md | sed '$d')
-          echo "CHANGES<<EOF" >> $GITHUB_ENV
-          echo "$CHANGES" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          curl -LJO https://github.com/dfinity/quill/releases/download/v0.4.4/quill-linux-x86_64
+          sudo mv quill-macos-x86_64 /usr/local/bin/quill
+          chmod +x /usr/local/bin/quill
+          quill -h
 
-      - name: Echo changes
-        run: echo "${{ env.CHANGES }}"
-
-      - name: Release
-        uses: softprops/action-gh-release@v2
-        with:
-          body: ${{ env.CHANGES }}
-          make_latest: 'true'
-          files: |
-            wasm/${{ env.PACKAGE }}_${{ env.VERSION }}.wasm.gz
-            wasm/${{ env.PACKAGE }}_${{ env.VERSION }}.wasm
+      # - name: Create Proposal
+      #   run: |
+      #     echo ${{ secrets.CATALYZE_PROPOSAL }} | base64 --decode > catalyze.pem
+      #     quill sns make-upgrade-canister-proposal \
+      #       --canister-ids-file scripts/sns_canister_ids.json  \
+      #       --target-canister-id "${{ env.UPGRADE_CANISTER_ID }}" \
+      #       --wasm-path "${{ env.WASM_PATH }}" \
+      #       --summary "${{ env.CHANGES }}" \
+      #       --pem-file "${{PEM_FILE}}" \
+      #       --url "${URL}" \
+      #       --title "Upgrade ${{ env.CANISTER_NAME }} canister to version ${{ env.VERSION }}" \
+      #       "${{ env.DEVELOPER_NEURON_ID }}" > msg.json
+      #     # quill send --yes msg.json
+          
 
 
